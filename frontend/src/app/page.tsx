@@ -83,32 +83,27 @@ export default function Home() {
 
       {/* ── Hero ────────────────────────────── */}
       <section className="relative grid-bg overflow-hidden pt-32 pb-24 md:pt-40 md:pb-32">
-        {/* Glow orbs */}
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2">
-          <div className="h-[600px] w-[600px] rounded-full bg-[#6d5cff]/8 blur-[120px]" />
+          <div className="h-[600px] w-[600px] rounded-full bg-[#6d5cff]/5 blur-[120px]" />
         </div>
 
         <div className="relative mx-auto max-w-3xl px-6 text-center">
-          {/* Pill */}
-          <div className="fade-up mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-card)] px-4 py-1.5 text-xs text-[var(--text-dim)]">
+          <div className="fade-up mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 py-1.5 text-xs text-[var(--text-dim)] shadow-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             Multi-provider AI — Gemini · OpenRouter · Ollama
           </div>
 
-          {/* Title */}
           <h1 className="fade-up text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl" style={{ animationDelay: "0.1s" }}>
             Your AI-Powered
             <br />
             <span className="grad">Productivity Hub</span>
           </h1>
 
-          {/* Subtitle */}
           <p className="fade-up mx-auto mt-6 max-w-xl text-base leading-relaxed text-[var(--text-dim)] sm:text-lg" style={{ animationDelay: "0.2s" }}>
             Chat with AI, manage tasks, process documents with RAG, automate
             workflows, and stay organized — all in one workspace.
           </p>
 
-          {/* Buttons */}
           <div className="fade-up mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ animationDelay: "0.3s" }}>
             <a
               href="/register"
@@ -127,14 +122,14 @@ export default function Home() {
       </section>
 
       {/* ── Stats ───────────────────────────── */}
-      <section className="border-y border-[var(--border)] bg-[var(--bg-card)]">
+      <section className="border-y border-[var(--border)] bg-white">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-px md:grid-cols-4">
           {[
             { value: "165+", label: "Features" },
             { value: "3", label: "AI Providers" },
             { value: "16", label: "DB Models" },
             { value: "99.9%", label: "Uptime" },
-          ].map((s, i) => (
+          ].map((s) => (
             <div key={s.label} className="px-6 py-8 text-center">
               <div className="text-2xl font-bold grad">{s.value}</div>
               <div className="mt-1 text-xs text-[var(--text-dim)]">{s.label}</div>
@@ -165,7 +160,7 @@ export default function Home() {
                 key={f.title}
                 className="glass group rounded-2xl p-6 transition-all duration-200 hover:translate-y-[-2px]"
               >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#6d5cff]/10 text-[var(--accent)] transition-colors group-hover:bg-[#6d5cff]/15">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#6d5cff]/8 text-[var(--accent)] transition-colors group-hover:bg-[#6d5cff]/12">
                   {f.icon}
                 </div>
                 <h3 className="mb-2 text-sm font-semibold">{f.title}</h3>
@@ -179,7 +174,7 @@ export default function Home() {
       </section>
 
       {/* ── How It Works ────────────────────── */}
-      <section id="how" className="border-y border-[var(--border)] bg-[var(--bg-card)] py-24 md:py-32">
+      <section id="how" className="border-y border-[var(--border)] bg-white py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-16 text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
@@ -193,7 +188,7 @@ export default function Home() {
           <div className="grid gap-12 md:grid-cols-3 md:gap-8">
             {steps.map((s) => (
               <div key={s.num} className="text-center">
-                <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg)] text-sm font-bold grad">
+                <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg)] text-sm font-bold grad shadow-sm">
                   {s.num}
                 </div>
                 <h3 className="mb-2 text-base font-semibold">{s.title}</h3>

@@ -45,9 +45,8 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border)]">
+    <footer className="border-t border-[var(--border)] bg-white">
       <div className="mx-auto max-w-6xl px-6 py-16">
-        {/* Top row */}
         <div className="flex flex-col gap-12 md:flex-row md:justify-between">
           {/* Brand */}
           <div className="max-w-xs">
@@ -69,7 +68,7 @@ export default function Footer() {
           <div className="grid grid-cols-3 gap-12">
             {columns.map((col) => (
               <div key={col.title}>
-                <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/40">
+                <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]/60">
                   {col.title}
                 </h4>
                 <ul className="space-y-2.5">
@@ -77,7 +76,7 @@ export default function Footer() {
                     <li key={link}>
                       <a
                         href="#"
-                        className="text-sm text-[var(--text-dim)] transition-colors hover:text-white"
+                        className="text-sm text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
                       >
                         {link}
                       </a>
@@ -101,7 +100,7 @@ export default function Footer() {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--text-dim)] transition-colors hover:text-white"
+                className="text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
                 aria-label={s.label}
               >
                 {s.icon}

@@ -2,13 +2,13 @@
 
 @layer base {
   :root {
-    --bg: #050510;
-    --bg-card: #0c0c1d;
-    --bg-card-hover: #12122a;
-    --border: rgba(255, 255, 255, 0.06);
-    --border-hover: rgba(255, 255, 255, 0.12);
-    --text: #ededf0;
-    --text-dim: #6e6e8a;
+    --bg: #f8f9fc;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f3f9;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.14);
+    --text: #1a1a2e;
+    --text-dim: #6b7280;
     --accent: #6d5cff;
     --accent2: #38bdf8;
   }
@@ -35,12 +35,12 @@
   .glass {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 24px rgba(0, 0, 0, 0.03);
   }
 
   .glass:hover {
     border-color: var(--border-hover);
-    background: var(--bg-card-hover);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 32px rgba(0, 0, 0, 0.04);
   }
 
   .grad {
@@ -51,15 +51,17 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #6d5cff, #38bdf8);
+    background: linear-gradient(135deg, #6d5cff, #5b4de0);
     color: #fff;
     border: none;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(109, 92, 255, 0.25);
   }
   .btn-primary:hover {
     opacity: 0.9;
     transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(109, 92, 255, 0.3);
   }
 
   .btn-ghost {
@@ -72,13 +74,13 @@
   .btn-ghost:hover {
     border-color: var(--border-hover);
     color: var(--text);
-    background: var(--bg-card);
+    background: var(--bg-card-hover);
   }
 
   .grid-bg {
     background-image: radial-gradient(
       circle at 1px 1px,
-      rgba(255, 255, 255, 0.025) 1px,
+      rgba(0, 0, 0, 0.03) 1px,
       transparent 0
     );
     background-size: 48px 48px;
@@ -109,6 +111,6 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 }

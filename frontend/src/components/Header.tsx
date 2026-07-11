@@ -12,7 +12,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-[var(--border)] bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2.5 shrink-0">
@@ -30,7 +30,7 @@ export default function Header() {
             <a
               key={l.href}
               href={l.href}
-              className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-[var(--text-dim)] transition-colors hover:text-white"
+              className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
             >
               {l.label}
             </a>
@@ -56,7 +56,7 @@ export default function Header() {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-dim)] transition-colors hover:text-white md:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-dim)] transition-colors hover:text-[var(--text)] md:hidden"
           aria-label="Menu"
         >
           <svg
@@ -85,14 +85,14 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-[var(--border)] bg-[var(--bg)] px-6 pb-6 pt-4 md:hidden">
+        <div className="border-t border-[var(--border)] bg-white px-6 pb-6 pt-4 md:hidden">
           <nav className="flex flex-col gap-1">
             {navLinks.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm text-[var(--text-dim)] transition-colors hover:text-white"
+                className="rounded-lg px-3 py-2.5 text-sm text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
               >
                 {l.label}
               </a>

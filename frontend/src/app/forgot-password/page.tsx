@@ -16,7 +16,6 @@ export default function ForgotPasswordPage() {
   const [countdown, setCountdown] = useState(0);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Countdown timer for resend
   useEffect(() => {
     if (countdown <= 0) return;
     const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -52,9 +51,7 @@ export default function ForgotPasswordPage() {
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
-    if (value && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
+    if (value && index < 5) otpRefs.current[index + 1]?.focus();
   };
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -143,14 +140,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
-      {/* Background */}
       <div className="absolute inset-0 grid-bg" />
       <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2">
-        <div className="h-[500px] w-[500px] rounded-full bg-[#6d5cff]/8 blur-[120px]" />
+        <div className="h-[500px] w-[500px] rounded-full bg-[#6d5cff]/5 blur-[120px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2.5">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#6d5cff] to-[#38bdf8] text-sm font-bold text-white">
@@ -171,8 +166,8 @@ export default function ForgotPasswordPage() {
                   step === s
                     ? "bg-[var(--accent)] text-white"
                     : i < ["email", "otp", "reset"].indexOf(step)
-                    ? "bg-[var(--accent)]/20 text-[var(--accent)]"
-                    : "bg-[var(--border)] text-[var(--text-dim)]"
+                    ? "bg-[var(--accent)]/10 text-[var(--accent)]"
+                    : "bg-gray-100 text-[var(--text-dim)]"
                 }`}
               >
                 {i < ["email", "otp", "reset"].indexOf(step) ? (
@@ -183,15 +178,14 @@ export default function ForgotPasswordPage() {
                   i + 1
                 )}
               </div>
-              {i < 2 && <div className="h-px w-8 bg-[var(--border)]" />}
+              {i < 2 && <div className="h-px w-8 bg-gray-200" />}
             </div>
           ))}
         </div>
 
-        {/* Card */}
         <div className="glass rounded-2xl p-8">
           {error && (
-            <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
             </div>
           )}
@@ -200,7 +194,7 @@ export default function ForgotPasswordPage() {
           {step === "email" && (
             <>
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent)]/10">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent)]/8">
                   <svg className="h-7 w-7 text-[var(--accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                   </svg>
@@ -223,7 +217,7 @@ export default function ForgotPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10"
                   />
                 </div>
 
@@ -242,7 +236,7 @@ export default function ForgotPasswordPage() {
           {step === "otp" && (
             <>
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent)]/10">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent)]/8">
                   <svg className="h-7 w-7 text-[var(--accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                   </svg>
@@ -250,12 +244,11 @@ export default function ForgotPasswordPage() {
                 <h1 className="text-xl font-bold">Check your email</h1>
                 <p className="mt-2 text-sm text-[var(--text-dim)]">
                   We sent a 6-digit code to<br />
-                  <span className="text-white">{email}</span>
+                  <span className="font-medium text-[var(--text)]">{email}</span>
                 </p>
               </div>
 
               <form onSubmit={handleVerifyOtp} className="space-y-6">
-                {/* OTP Input */}
                 <div className="flex justify-center gap-2.5">
                   {otp.map((digit, i) => (
                     <input
@@ -268,7 +261,7 @@ export default function ForgotPasswordPage() {
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
                       onPaste={handleOtpPaste}
-                      className="h-12 w-11 rounded-xl border border-[var(--border)] bg-[var(--bg)] text-center text-lg font-semibold text-white outline-none transition-colors focus:border-[var(--accent)]"
+                      className="h-12 w-11 rounded-xl border border-[var(--border)] bg-[var(--bg)] text-center text-lg font-semibold text-[var(--text)] outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10"
                     />
                   ))}
                 </div>
@@ -289,7 +282,7 @@ export default function ForgotPasswordPage() {
                     <button
                       type="button"
                       onClick={handleResend}
-                      className="font-medium text-[var(--accent)] hover:text-[var(--accent2)] transition-colors"
+                      className="font-medium text-[var(--accent)] hover:text-[#5b4de0] transition-colors"
                     >
                       Resend
                     </button>
@@ -303,8 +296,8 @@ export default function ForgotPasswordPage() {
           {step === "reset" && (
             <>
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
-                  <svg className="h-7 w-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
+                  <svg className="h-7 w-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                   </svg>
                 </div>
@@ -326,7 +319,7 @@ export default function ForgotPasswordPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10"
                   />
                 </div>
 
@@ -341,11 +334,11 @@ export default function ForgotPasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] ${
+                    className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 ${
                       confirmPassword.length > 0
                         ? newPassword === confirmPassword
-                          ? "border-emerald-500/40"
-                          : "border-red-500/40"
+                          ? "border-emerald-300"
+                          : "border-red-300"
                         : "border-[var(--border)]"
                     }`}
                   />
@@ -363,9 +356,8 @@ export default function ForgotPasswordPage() {
           )}
         </div>
 
-        {/* Back to login */}
         <p className="mt-6 text-center text-sm text-[var(--text-dim)]">
-          <Link href="/login" className="font-medium text-[var(--accent)] hover:text-[var(--accent2)] transition-colors">
+          <Link href="/login" className="font-medium text-[var(--accent)] hover:text-[#5b4de0] transition-colors">
             ← Back to sign in
           </Link>
         </p>

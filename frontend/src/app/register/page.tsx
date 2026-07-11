@@ -40,15 +40,12 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
-      {/* Background */}
       <div className="absolute inset-0 grid-bg" />
       <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2">
-        <div className="h-[500px] w-[500px] rounded-full bg-[#6d5cff]/8 blur-[120px]" />
+        <div className="h-[500px] w-[500px] rounded-full bg-[#6d5cff]/5 blur-[120px]" />
       </div>
 
-      {/* Card */}
       <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2.5">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#6d5cff] to-[#38bdf8] text-sm font-bold text-white">
@@ -64,16 +61,14 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Form */}
         <div className="glass rounded-2xl p-8">
           {error && (
-            <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name */}
             <div>
               <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-[var(--text-dim)]">
                 Full Name
@@ -85,11 +80,10 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)]"
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10"
               />
             </div>
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-[var(--text-dim)]">
                 Email
@@ -101,11 +95,10 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)]"
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10"
               />
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-[var(--text-dim)]">
                 Password
@@ -118,12 +111,12 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 pr-11 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)]"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 pr-11 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-dim)] hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-dim)] hover:text-[var(--text)] transition-colors"
                 >
                   {showPassword ? (
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -138,21 +131,20 @@ export default function RegisterPage() {
                 </button>
               </div>
 
-              {/* Password checks */}
               {password.length > 0 && (
                 <div className="mt-3 space-y-1.5">
                   {passwordChecks.map((check) => (
                     <div key={check.label} className="flex items-center gap-2 text-xs">
                       {check.valid ? (
-                        <svg className="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <svg className="h-3.5 w-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                       ) : (
-                        <svg className="h-3.5 w-3.5 text-[var(--text-dim)]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <svg className="h-3.5 w-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <circle cx="12" cy="12" r="9" />
                         </svg>
                       )}
-                      <span className={check.valid ? "text-emerald-400" : "text-[var(--text-dim)]/60"}>
+                      <span className={check.valid ? "text-emerald-600" : "text-[var(--text-dim)]"}>
                         {check.label}
                       </span>
                     </div>
@@ -161,7 +153,6 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label htmlFor="confirm" className="mb-1.5 block text-xs font-medium text-[var(--text-dim)]">
                 Confirm Password
@@ -173,20 +164,19 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-white placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] ${
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-dim)]/50 outline-none transition-colors focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 ${
                   confirmPassword.length > 0
                     ? password === confirmPassword
-                      ? "border-emerald-500/40"
-                      : "border-red-500/40"
+                      ? "border-emerald-300"
+                      : "border-red-300"
                     : "border-[var(--border)]"
                 }`}
               />
               {confirmPassword.length > 0 && password !== confirmPassword && (
-                <p className="mt-1.5 text-xs text-red-400">Passwords do not match</p>
+                <p className="mt-1.5 text-xs text-red-500">Passwords do not match</p>
               )}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading || !isValid}
@@ -207,10 +197,9 @@ export default function RegisterPage() {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="mt-6 text-center text-sm text-[var(--text-dim)]">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-[var(--accent)] hover:text-[var(--accent2)] transition-colors">
+          <Link href="/login" className="font-medium text-[var(--accent)] hover:text-[#5b4de0] transition-colors">
             Sign in
           </Link>
         </p>
