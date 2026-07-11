@@ -1,4 +1,7 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+/*
+// TODO: Re-enable auth
+// TODO: Re-enable auth at the end
+// import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -15,3 +18,4 @@ export const otpRecords = sqliteTable("otp_records", {
   expiresAt: text("expires_at").notNull(),
   used: integer("used", { mode: "boolean" }).default(false),
 });
+*/

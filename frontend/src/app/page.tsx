@@ -106,10 +106,10 @@ export default function Home() {
 
           <div className="fade-up mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ animationDelay: "0.3s" }}>
             <a
-              href="/register"
+              href="/#TODO-auth"
               className="btn-primary rounded-full px-7 py-3 text-sm font-medium"
             >
-              Start for Free →
+              Coming Soon
             </a>
             <a
               href="#features"
@@ -213,10 +213,10 @@ export default function Home() {
           </p>
           <div className="mt-10">
             <a
-              href="/register"
+              href="/#TODO-auth"
               className="btn-primary inline-block rounded-full px-8 py-3.5 text-sm font-medium"
             >
-              Get Started for Free
+              Coming Soon
             </a>
           </div>
         </div>

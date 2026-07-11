@@ -1,4 +1,7 @@
-"use client";
+/*
+// TODO: Re-enable auth
+// TODO: Re-enable auth at the end
+// "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
@@ -85,3 +88,4 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+*/
