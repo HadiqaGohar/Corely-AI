@@ -1,18 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #111118;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-hover: rgba(255, 255, 255, 0.06);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --text-primary: #f0f0f5;
-  --text-secondary: #8888a0;
-  --accent-purple: #7c3aed;
-  --accent-purple-light: #a78bfa;
-  --accent-blue: #3b82f6;
-  --accent-cyan: #06b6d4;
-  --accent-gradient: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4);
+  --bg: #050510;
+  --bg-card: #0c0c1d;
+  --bg-card-hover: #12122a;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --text: #ededf0;
+  --text-dim: #6e6e8a;
+  --accent: #6d5cff;
+  --accent2: #38bdf8;
 }
 
 * {
@@ -21,114 +18,97 @@
   box-sizing: border-box;
 }
 
-body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
+html {
+  scroll-behavior: smooth;
 }
 
-/* Glassmorphic utility */
+body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Glass card ─────────────────────────── */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
 }
 
-.glass-hover:hover {
+.glass:hover {
+  border-color: var(--border-hover);
   background: var(--bg-card-hover);
-  border-color: rgba(255, 255, 255, 0.12);
 }
 
-/* Gradient text */
-.gradient-text {
-  background: var(--accent-gradient);
+/* ── Gradient text ──────────────────────── */
+.grad {
+  background: linear-gradient(135deg, #6d5cff 0%, #38bdf8 50%, #34d399 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glow effect */
-.glow-purple {
-  box-shadow: 0 0 60px rgba(124, 58, 237, 0.15),
-    0 0 120px rgba(124, 58, 237, 0.05);
+/* ── Button ─────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #6d5cff, #38bdf8);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.glow-blue {
-  box-shadow: 0 0 60px rgba(59, 130, 246, 0.15),
-    0 0 120px rgba(59, 130, 246, 0.05);
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+  background: var(--bg-card);
 }
 
-/* Animated gradient border */
-.gradient-border {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.gradient-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: 16px;
-  background: var(--accent-gradient);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-/* Subtle grid pattern */
-.grid-pattern {
+/* ── Grid background ────────────────────── */
+.grid-bg {
   background-image: radial-gradient(
-    rgba(255, 255, 255, 0.03) 1px,
-    transparent 1px
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 0
   );
-  background-size: 40px 40px;
+  background-size: 48px 48px;
 }
 
-/* Pulse animation for floating elements */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
+/* ── Fade in ────────────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
   }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes pulse-slow {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.8;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+.fade-up {
+  animation: fadeUp 0.7s ease-out both;
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 4s ease-in-out infinite;
-}
-
-/* Scrollbar */
+/* ── Scrollbar ──────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
 }

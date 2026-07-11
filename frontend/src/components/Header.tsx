@@ -1,141 +1,117 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+
+const navLinks = [
+  { label: "Features", href: "#features" },
+  { label: "How It Works", href: "#how" },
+  { label: "Pricing", href: "#pricing" },
+];
 
 export default function Header() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform">
+        <a href="/" className="flex items-center gap-2.5 shrink-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#6d5cff] to-[#38bdf8] text-xs font-bold text-white">
             C
-          </div>
-          <span className="text-lg font-semibold tracking-tight">
-            Corely<span className="gradient-text">AI</span>
           </span>
-        </Link>
+          <span className="text-base font-semibold tracking-tight">
+            Corely<span className="grad">AI</span>
+          </span>
+        </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a
-            href="#features"
-            className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
-          >
-            Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
-          >
-            How It Works
-          </a>
-          <a
-            href="#pricing"
-            className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
-          >
-            Pricing
-          </a>
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-1 md:flex">
+          {navLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-[var(--text-dim)] transition-colors hover:text-white"
+            >
+              {l.label}
+            </a>
+          ))}
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link
+        <div className="hidden items-center gap-2 md:flex">
+          <a
             href="/login"
-            className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+            className="btn-ghost rounded-full px-4 py-2 text-[13px] font-medium"
           >
-            Log In
-          </Link>
-          <Link
+            Log in
+          </a>
+          <a
             href="/register"
-            className="px-5 py-2 text-sm font-medium rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:opacity-90 transition-opacity"
+            className="btn-primary rounded-full px-5 py-2 text-[13px] font-medium"
           >
             Get Started
-          </Link>
+          </a>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile toggle */}
         <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 text-[var(--text-secondary)] hover:text-white"
-          aria-label="Toggle menu"
+          onClick={() => setOpen(!open)}
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-dim)] transition-colors hover:text-white md:hidden"
+          aria-label="Menu"
         >
-          {mobileOpen ? (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            {open ? (
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
                 d="M6 18L18 6M6 6l12 12"
               />
-            </svg>
-          ) : (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            ) : (
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
               />
-            </svg>
-          )}
+            )}
+          </svg>
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden glass border-t border-[var(--border-color)]">
-          <nav className="flex flex-col px-6 py-4 gap-4">
+      {/* Mobile menu */}
+      {open && (
+        <div className="border-t border-[var(--border)] bg-[var(--bg)] px-6 pb-6 pt-4 md:hidden">
+          <nav className="flex flex-col gap-1">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm text-[var(--text-dim)] transition-colors hover:text-white"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <div className="mt-4 flex flex-col gap-2">
             <a
-              href="#features"
-              onClick={() => setMobileOpen(false)}
-              className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              onClick={() => setMobileOpen(false)}
-              className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
-            >
-              How It Works
-            </a>
-            <a
-              href="#pricing"
-              onClick={() => setMobileOpen(false)}
-              className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
-            >
-              Pricing
-            </a>
-            <hr className="border-[var(--border-color)]" />
-            <Link
               href="/login"
-              onClick={() => setMobileOpen(false)}
-              className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors"
+              className="btn-ghost rounded-full px-4 py-2.5 text-center text-sm font-medium"
             >
-              Log In
-            </Link>
-            <Link
+              Log in
+            </a>
+            <a
               href="/register"
-              onClick={() => setMobileOpen(false)}
-              className="px-5 py-2 text-sm font-medium rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white text-center hover:opacity-90 transition-opacity"
+              className="btn-primary rounded-full px-4 py-2.5 text-center text-sm font-medium"
             >
               Get Started
-            </Link>
-          </nav>
+            </a>
+          </div>
         </div>
       )}
     </header>
