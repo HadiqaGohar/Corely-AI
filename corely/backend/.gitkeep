@@ -1,0 +1,3 @@
+# Corely AI - Backend
+
+Built with FastAPI (Python), PostgreSQL + pgvector.
