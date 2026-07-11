@@ -2,10 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 interface User {
-  id: string;
-  email: string;
+  id: number;
   name: string;
+  email: string;
 }
 
 interface AuthContextType {
@@ -25,26 +27,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("corely_token");
-    const savedUser = localStorage.getItem("corely_user");
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
+    try {
+      const savedToken = localStorage.getItem("corely_token");
+      const savedUser = localStorage.getItem("corely_user");
+      if (savedToken && savedUser) {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      }
+    } catch {}
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+  const apiCall = async (path: string, body: object) => {
+    const res = await fetch(`${API_URL}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(body),
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Login failed");
-    }
     const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || data.error || "Request failed");
+    }
+    return data;
+  };
+
+  const login = async (email: string, password: string) => {
+    const data = await apiCall("/api/auth/login", { email, password });
     localStorage.setItem("corely_token", data.token);
     localStorage.setItem("corely_user", JSON.stringify(data.user));
     setToken(data.token);
@@ -52,16 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Registration failed");
-    }
-    const data = await res.json();
+    const data = await apiCall("/api/auth/register", { name, email, password });
     localStorage.setItem("corely_token", data.token);
     localStorage.setItem("corely_user", JSON.stringify(data.user));
     setToken(data.token);
