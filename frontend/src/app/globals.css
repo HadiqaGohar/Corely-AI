@@ -1,91 +1,96 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #050510;
-  --bg-card: #0c0c1d;
-  --bg-card-hover: #12122a;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
-  --text: #ededf0;
-  --text-dim: #6e6e8a;
-  --accent: #6d5cff;
-  --accent2: #38bdf8;
+@layer base {
+  :root {
+    --bg: #050510;
+    --bg-card: #0c0c1d;
+    --bg-card-hover: #12122a;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(255, 255, 255, 0.12);
+    --text: #ededf0;
+    --text-dim: #6e6e8a;
+    --accent: #6d5cff;
+    --accent2: #38bdf8;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer components {
+  .glass {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .glass:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+  }
+
+  .grad {
+    background: linear-gradient(135deg, #6d5cff 0%, #38bdf8 50%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #6d5cff, #38bdf8);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+    background: var(--bg-card);
+  }
+
+  .grid-bg {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 0
+    );
+    background-size: 48px 48px;
+  }
 }
 
-html {
-  scroll-behavior: smooth;
+@layer utilities {
+  .fade-up {
+    animation: fadeUp 0.7s ease-out both;
+  }
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ── Glass card ─────────────────────────── */
-.glass {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-}
-
-.glass:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card-hover);
-}
-
-/* ── Gradient text ──────────────────────── */
-.grad {
-  background: linear-gradient(135deg, #6d5cff 0%, #38bdf8 50%, #34d399 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ── Button ─────────────────────────────── */
-.btn-primary {
-  background: linear-gradient(135deg, #6d5cff, #38bdf8);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
-}
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-ghost:hover {
-  border-color: var(--border-hover);
-  color: var(--text);
-  background: var(--bg-card);
-}
-
-/* ── Grid background ────────────────────── */
-.grid-bg {
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(255, 255, 255, 0.025) 1px,
-    transparent 0
-  );
-  background-size: 48px 48px;
-}
-
-/* ── Fade in ────────────────────────────── */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -97,11 +102,6 @@ body {
   }
 }
 
-.fade-up {
-  animation: fadeUp 0.7s ease-out both;
-}
-
-/* ── Scrollbar ──────────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;
 }
