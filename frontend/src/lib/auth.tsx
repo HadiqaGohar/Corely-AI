@@ -2,8 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 interface User {
   id: number;
   name: string;
@@ -39,14 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const apiCall = async (path: string, body: object) => {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.detail || data.error || "Request failed");
+      throw new Error(data.error || data.detail || "Request failed");
     }
     return data;
   };
