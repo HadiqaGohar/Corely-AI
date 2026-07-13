@@ -37,12 +37,11 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Desktop CTA - TODO: Re-enable auth
+        {/* Desktop CTA */}
         <div className="hidden items-center gap-2 md:flex">
           <a href="/login" className="btn-ghost rounded-full px-4 py-2 text-[13px] font-medium">Log in</a>
           <a href="/register" className="btn-primary rounded-full px-5 py-2 text-[13px] font-medium">Get Started</a>
         </div>
-        */}
 
         {/* Mobile toggle */}
         <button
@@ -70,12 +69,11 @@ export default function Header() {
               </a>
             ))}
           </nav>
-          {/* TODO: Re-enable auth
+          {/* Mobile CTA */}
           <div className="mt-4 flex flex-col gap-2">
             <a href="/login" className="btn-ghost rounded-full px-4 py-2.5 text-center text-sm font-medium">Log in</a>
             <a href="/register" className="btn-primary rounded-full px-4 py-2.5 text-center text-sm font-medium">Get Started</a>
           </div>
-          */}
         </div>
       )}
     </header>

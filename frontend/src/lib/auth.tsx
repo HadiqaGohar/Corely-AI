@@ -1,9 +1,7 @@
-/*
-// TODO: Re-enable auth
-// TODO: Re-enable auth at the end
-// "use client";
+"use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { auth } from "./api";
 
 interface User {
   id: number;
@@ -39,21 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const apiCall = async (path: string, body: object) => {
-    const res = await fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || data.detail || "Request failed");
-    }
-    return data;
-  };
-
   const login = async (email: string, password: string) => {
-    const data = await apiCall("/api/auth/login", { email, password });
+    const data = await auth.login(email, password);
     localStorage.setItem("corely_token", data.token);
     localStorage.setItem("corely_user", JSON.stringify(data.user));
     setToken(data.token);
@@ -61,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const data = await apiCall("/api/auth/register", { name, email, password });
+    const data = await auth.register(name, email, password);
     localStorage.setItem("corely_token", data.token);
     localStorage.setItem("corely_user", JSON.stringify(data.user));
     setToken(data.token);
@@ -88,4 +73,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
-*/
