@@ -77,6 +77,17 @@
     background: var(--bg-card-hover);
   }
 
+  .btn-danger {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-danger:hover {
+    background: #dc2626;
+  }
+
   .grid-bg {
     background-image: radial-gradient(
       circle at 1px 1px,
@@ -84,6 +95,33 @@
       transparent 0
     );
     background-size: 48px 48px;
+  }
+
+  .drag-over {
+    border-color: var(--accent) !important;
+    background: rgba(109, 92, 255, 0.05) !important;
+  }
+
+  .node-dragging {
+    opacity: 0.7;
+    cursor: grabbing !important;
+  }
+
+  .workflow-canvas {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(0, 0, 0, 0.06) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+  }
+
+  .notification-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .snooze-badge {
+    animation: fadeOut 0.3s ease-out;
   }
 }
 
@@ -104,6 +142,25 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -113,4 +170,19 @@
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
