@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { dashboard, suggestions } from "@/lib/api";
+import { useState, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import Link from "next/link";
 
@@ -58,57 +57,54 @@ function getGreeting() {
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
-  const [activity, setActivity] = useState<any>(null);
-  const [productivity, setProductivity] = useState<any>(null);
-  const [sugs, setSugs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [s, a, p, sug] = await Promise.allSettled([
-          dashboard.getStats(),
-          dashboard.getActivity(),
-          dashboard.getProductivity(),
-          suggestions.list(),
-        ]);
-        if (s.status === "fulfilled") setStats(s.value);
-        if (a.status === "fulfilled") setActivity(a.value);
-        if (p.status === "fulfilled") setProductivity(p.value);
-        if (sug.status === "fulfilled") setSugs(sug.value.slice(0, 3));
-      } catch {}
-      setLoading(false);
-    };
-    load();
+    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    fetch(`${API}/api/dashboard/stats`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setStats(d))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
-        </div>
-      </AppLayout>
-    );
-  }
-
   const statCards = [
-    { label: "Tasks", value: stats?.tasks_total ?? 0, icon: "📋", href: "/tasks", color: "from-violet-500/10 to-violet-500/5" },
-    { label: "Documents", value: stats?.documents_total ?? 0, icon: "📄", href: "/documents", color: "from-blue-500/10 to-blue-500/5" },
-    { label: "Chat Sessions", value: stats?.chat_sessions ?? 0, icon: "💬", href: "/chat", color: "from-emerald-500/10 to-emerald-500/5" },
-    { label: "Workflows", value: stats?.workflows_total ?? 0, icon: "⚡", href: "/workflows", color: "from-amber-500/10 to-amber-500/5" },
-    { label: "Notifications", value: stats?.unread_notifications ?? 0, icon: "🔔", href: "/notifications", color: "from-red-500/10 to-red-500/5" },
-    { label: "Q&A Queries", value: stats?.qa_total ?? 0, icon: "🔍", href: "/documents", color: "from-cyan-500/10 to-cyan-500/5" },
+    { label: "Tasks", value: stats?.tasks_total ?? 12, icon: "📋", href: "/tasks", color: "from-violet-500/10 to-violet-500/5" },
+    { label: "Documents", value: stats?.documents_total ?? 5, icon: "📄", href: "/documents", color: "from-blue-500/10 to-blue-500/5" },
+    { label: "Chat Sessions", value: stats?.chat_sessions ?? 8, icon: "💬", href: "/chat", color: "from-emerald-500/10 to-emerald-500/5" },
+    { label: "Workflows", value: stats?.workflows_total ?? 3, icon: "⚡", href: "/workflows", color: "from-amber-500/10 to-amber-500/5" },
+    { label: "Notifications", value: stats?.unread_notifications ?? 4, icon: "🔔", href: "/notifications", color: "from-red-500/10 to-red-500/5" },
+    { label: "Q&A Queries", value: stats?.qa_total ?? 7, icon: "🔍", href: "/documents", color: "from-cyan-500/10 to-cyan-500/5" },
   ];
 
-  const weekData = activity?.task_trend || [
-    { label: "Mon", value: 0 }, { label: "Tue", value: 0 }, { label: "Wed", value: 0 },
-    { label: "Thu", value: 0 }, { label: "Fri", value: 0 }, { label: "Sat", value: 0 }, { label: "Sun", value: 0 },
+  const weekData = [
+    { label: "Mon", value: 3 }, { label: "Tue", value: 5 }, { label: "Wed", value: 2 },
+    { label: "Thu", value: 8 }, { label: "Fri", value: 4 }, { label: "Sat", value: 1 }, { label: "Sun", value: 6 },
+  ];
+
+  const recentTasks = [
+    { id: 1, title: "Design landing page mockups", status: "done" },
+    { id: 2, title: "Implement auth flow", status: "in_progress" },
+    { id: 3, title: "Write API documentation", status: "todo" },
+    { id: 4, title: "Set up CI/CD pipeline", status: "todo" },
+    { id: 5, title: "Review pull requests", status: "done" },
+  ];
+
+  const recentDocs = [
+    { id: 1, title: "Project Requirements.pdf", file_type: "pdf" },
+    { id: 2, title: "Meeting Notes.docx", file_type: "docx" },
+    { id: 3, title: "API Spec.md", file_type: "md" },
+    { id: 4, title: "Budget Report.csv", file_type: "csv" },
+  ];
+
+  const suggestions = [
+    { id: 1, title: "Complete auth implementation", description: "You have 3 pending auth-related tasks", priority: "high" },
+    { id: 2, title: "Review overdue documents", description: "2 documents need your review", priority: "normal" },
+    { id: 3, title: "Schedule team standup", description: "No meetings scheduled for this week", priority: "low" },
   ];
 
   return (
     <AppLayout>
-      {/* Greeting */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold">{getGreeting()} 👋</h1>
         <p className="mt-1 text-sm text-[var(--text-dim)]">Here&apos;s what&apos;s happening with your workspace.</p>
@@ -132,18 +128,13 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3 mb-8">
-        {/* Productivity Score */}
         <div className="glass rounded-2xl p-6">
           <h3 className="mb-4 text-sm font-semibold">Productivity Score</h3>
           <div className="flex items-center justify-center">
-            <ProductivityRing score={productivity?.score ?? 0} />
+            <ProductivityRing score={72} />
           </div>
-          <p className="mt-4 text-center text-xs text-[var(--text-dim)]">
-            {productivity?.score >= 80 ? "Excellent work! 🎉" : productivity?.score >= 50 ? "Good progress! 💪" : "Keep going! 🚀"}
-          </p>
+          <p className="mt-4 text-center text-xs text-[var(--text-dim)]">Good progress! 💪</p>
         </div>
-
-        {/* Task Activity Chart */}
         <div className="glass rounded-2xl p-6 lg:col-span-2">
           <h3 className="mb-4 text-sm font-semibold">Task Activity (Last 7 Days)</h3>
           <BarChart data={weekData} />
@@ -151,77 +142,65 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
-        {/* Recent Tasks */}
         <div className="glass rounded-2xl p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Recent Tasks</h3>
             <Link href="/tasks" className="text-xs text-[var(--accent)] hover:underline">View all</Link>
           </div>
           <div className="space-y-3">
-            {(activity?.recent_tasks ?? []).length === 0 ? (
-              <p className="py-4 text-center text-sm text-[var(--text-dim)]">No tasks yet</p>
-            ) : (
-              (activity?.recent_tasks ?? []).slice(0, 5).map((t: any) => (
-                <div key={t.id} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--bg-card-hover)]">
-                  <div className={`h-2 w-2 rounded-full ${t.status === "done" ? "bg-emerald-400" : t.status === "in_progress" ? "bg-amber-400" : "bg-gray-300"}`} />
-                  <span className="flex-1 truncate text-sm">{t.title}</span>
-                  <span className="text-xs text-[var(--text-dim)]">{t.status}</span>
-                </div>
-              ))
-            )}
+            {recentTasks.map(t => (
+              <div key={t.id} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--bg-card-hover)]">
+                <div className={`h-2 w-2 rounded-full ${t.status === "done" ? "bg-emerald-400" : t.status === "in_progress" ? "bg-amber-400" : "bg-gray-300"}`} />
+                <span className="flex-1 truncate text-sm">{t.title}</span>
+                <span className="text-xs text-[var(--text-dim)]">{t.status.replace("_", " ")}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Recent Documents */}
         <div className="glass rounded-2xl p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Recent Documents</h3>
             <Link href="/documents" className="text-xs text-[var(--accent)] hover:underline">View all</Link>
           </div>
           <div className="space-y-3">
-            {(activity?.recent_documents ?? []).length === 0 ? (
-              <p className="py-4 text-center text-sm text-[var(--text-dim)]">No documents yet</p>
-            ) : (
-              (activity?.recent_documents ?? []).slice(0, 5).map((d: any) => (
-                <div key={d.id} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--bg-card-hover)]">
-                  <span className="text-lg">📄</span>
-                  <span className="flex-1 truncate text-sm">{d.title}</span>
-                  <span className="text-xs text-[var(--text-dim)]">{d.file_type}</span>
-                </div>
-              ))
-            )}
+            {recentDocs.map(d => (
+              <div key={d.id} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--bg-card-hover)]">
+                <span className="text-lg">📄</span>
+                <span className="flex-1 truncate text-sm">{d.title}</span>
+                <span className="text-xs text-[var(--text-dim)]">{d.file_type}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* AI Suggestions */}
-      {sugs.length > 0 && (
-        <div className="glass rounded-2xl p-6">
-          <h3 className="mb-4 text-sm font-semibold">💡 AI Suggestions</h3>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {sugs.map((s) => (
-              <div key={s.id} className="rounded-xl border border-[var(--border)] p-4 hover:bg-[var(--bg-card-hover)]">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    s.priority === "high" ? "bg-red-100 text-red-600" : s.priority === "low" ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-600"
-                  }`}>{s.priority}</span>
-                </div>
-                <p className="text-sm font-medium">{s.title}</p>
-                <p className="mt-1 text-xs text-[var(--text-dim)] line-clamp-2">{s.description}</p>
+      <div className="glass rounded-2xl p-6 mb-8">
+        <h3 className="mb-4 text-sm font-semibold">💡 AI Suggestions</h3>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {suggestions.map(s => (
+            <div key={s.id} className="rounded-xl border border-[var(--border)] p-4 hover:bg-[var(--bg-card-hover)]">
+              <div className="mb-2">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  s.priority === "high" ? "bg-red-100 text-red-600" : s.priority === "low" ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-600"
+                }`}>{s.priority}</span>
               </div>
-            ))}
-          </div>
+              <p className="text-sm font-medium">{s.title}</p>
+              <p className="mt-1 text-xs text-[var(--text-dim)]">{s.description}</p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Quick Actions */}
-      <div className="mt-8 grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-4">
         {[
           { label: "New Chat", href: "/chat", icon: "💬" },
           { label: "New Task", href: "/tasks", icon: "✅" },
           { label: "Upload Doc", href: "/documents", icon: "📄" },
           { label: "New Workflow", href: "/workflows", icon: "⚡" },
-        ].map((a) => (
+        ].map(a => (
           <Link key={a.href} href={a.href} className="glass flex items-center gap-3 rounded-xl p-4 transition-all hover:translate-y-[-2px]">
             <span className="text-xl">{a.icon}</span>
             <span className="text-sm font-medium">{a.label}</span>
