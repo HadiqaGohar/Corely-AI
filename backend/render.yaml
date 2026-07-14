@@ -9,4 +9,13 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///./corely.db
+        fromDatabase:
+          name: corely-ai-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+
+databases:
+  - name: corely-ai-db
+    plan: free
+    databaseName: corely_ai
