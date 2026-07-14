@@ -3,8 +3,8 @@ services:
     name: corely-ai-backend
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: ""
+    startCommand: ""
     envVars:
       - key: JWT_SECRET
         value: "corely-ai-secret-2024-change-this"
