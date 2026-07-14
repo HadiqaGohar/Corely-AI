@@ -13,19 +13,27 @@ interface AttachedFile {
 // ─── Markdown Renderer ───────────────────────────────────────────────
 function renderMarkdown(text: string): string {
   let html = text;
+  // Code blocks with language
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang: string, code: string) => {
     const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return `<pre class="bg-black/5 dark:bg-white/10 rounded-lg p-3 my-2 overflow-x-auto text-xs"><code class="lang-${lang}">${escaped}</code></pre>`;
+    const langLabel = lang ? `<span class="absolute top-1 right-2 text-[10px] text-gray-400">${lang}</span>` : "";
+    return `<div class="relative my-2"><pre class="bg-black/5 dark:bg-white/10 rounded-lg p-3 overflow-x-auto text-xs"><code class="lang-${lang}">${escaped}</code></pre>${langLabel}</div>`;
   });
+  // Inline code
   html = html.replace(/`([^`]+)`/g, '<code class="bg-black/5 dark:bg-white/10 rounded px-1.5 py-0.5 text-xs">$1</code>');
+  // Headers
   html = html.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-3 mb-1">$1</h3>');
   html = html.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-4 mb-1">$1</h2>');
   html = html.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-4 mb-2">$1</h1>');
+  // Bold, italic
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Lists
   html = html.replace(/^[\-\*] (.+)$/gm, '<li class="ml-4 list-disc">$1</li>');
   html = html.replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal">$1</li>');
+  // Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[var(--accent)] underline" target="_blank">$1</a>');
+  // Line breaks
   html = html.replace(/\n\n/g, '</p><p class="mt-2">');
   html = html.replace(/\n/g, '<br/>');
   return `<p>${html}</p>`;

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import Link from "next/link";
 import { dashboard, suggestions as sugApi, DashboardStats, ActivityItem } from "@/lib/api";
+import { DonutChart } from "@/components/Charts";
 
 function ProductivityRing({ score }: { score: number }) {
   const circumference = 2 * Math.PI * 40;
@@ -113,12 +114,35 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="glass rounded-2xl p-6 lg:col-span-2">
-          <h3 className="mb-4 text-sm font-semibold">Task Activity</h3>
-          <div className="grid grid-cols-4 gap-4 text-center">
-            <div><p className="text-2xl font-bold text-gray-400">{stats?.tasks_todo ?? 0}</p><p className="text-xs text-[var(--text-dim)]">To Do</p></div>
-            <div><p className="text-2xl font-bold text-amber-400">{stats?.tasks_in_progress ?? 0}</p><p className="text-xs text-[var(--text-dim)]">In Progress</p></div>
-            <div><p className="text-2xl font-bold text-emerald-400">{stats?.tasks_done ?? 0}</p><p className="text-xs text-[var(--text-dim)]">Done</p></div>
-            <div><p className="text-2xl font-bold text-red-400">{stats?.notifications_unread ?? 0}</p><p className="text-xs text-[var(--text-dim)]">Unread</p></div>
+          <h3 className="mb-4 text-sm font-semibold">Task Distribution</h3>
+          <div className="flex items-center gap-6">
+            <DonutChart
+              segments={[
+                { label: "To Do", value: stats?.tasks_todo ?? 0, color: "#9ca3af" },
+                { label: "In Progress", value: stats?.tasks_in_progress ?? 0, color: "#f59e0b" },
+                { label: "Done", value: stats?.tasks_done ?? 0, color: "#10b981" },
+              ]}
+              size={140}
+              thickness={16}
+            />
+            <div className="flex-1">
+              <div className="space-y-2">
+                {[
+                  { label: "To Do", value: stats?.tasks_todo ?? 0, color: "bg-gray-300" },
+                  { label: "In Progress", value: stats?.tasks_in_progress ?? 0, color: "bg-amber-400" },
+                  { label: "Done", value: stats?.tasks_done ?? 0, color: "bg-emerald-400" },
+                  { label: "Unread Notif.", value: stats?.notifications_unread ?? 0, color: "bg-red-400" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
+                      <span>{item.label}</span>
+                    </div>
+                    <span className="font-medium">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
