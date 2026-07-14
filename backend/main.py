@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from models import init_db, SessionLocal
 from services.reminders import check_reminders, check_overdue_tasks
+from services.embeddings import rebuild_index
 
 
 # ── Background Task Runner ────────────────────────────
@@ -39,6 +40,17 @@ async def lifespan(app: FastAPI):
     # Startup: create tables
     init_db()
     print("✅ Database tables created")
+
+    # Rebuild TF-IDF search index
+    try:
+        db = SessionLocal()
+        try:
+            n = rebuild_index(db)
+            print(f"🔍 TF-IDF index rebuilt: {n} chunks indexed")
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"⚠️ Index rebuild error: {e}")
 
     # Start background reminder checker
     task = asyncio.create_task(_reminder_loop())

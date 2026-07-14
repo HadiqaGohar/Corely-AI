@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from models import Suggestion, Task, User
+from models import Suggestion, Task, User, Folder
 from schemas import SuggestionResponse, SuggestionFeedbackRequest
 from auth import get_current_user, get_db
 
@@ -85,6 +85,49 @@ def _generate_suggestions(user_id: int, db: Session) -> list[dict]:
             "description": f"You have {in_progress} tasks in progress",
             "reason": "Working on too many tasks simultaneously can reduce quality and increase stress.",
             "priority": "normal",
+        })
+
+    # All high-priority tasks — suggest rebalancing
+    high_priority = db.query(Task).filter(
+        Task.user_id == user_id, Task.status != "done", Task.priority == "high"
+    ).count()
+    if high_priority > 4:
+        suggestions.append({
+            "type": "priority_rebalance",
+            "title": "Rebalance task priorities",
+            "description": f"{high_priority} tasks marked as high priority",
+            "reason": "When everything is high priority, nothing is. Consider re-evaluating.",
+            "priority": "low",
+        })
+
+    # Stale in-progress tasks (no update in 3+ days)
+    stale_threshold = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    from datetime import timedelta
+    stale_threshold -= timedelta(days=3)
+    stale_tasks = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == "in_progress",
+        Task.updated_at < stale_threshold,
+    ).all()
+    for task in stale_tasks[:2]:
+        suggestions.append({
+            "type": "task_stale",
+            "title": f"Check on '{task.title}'",
+            "description": f"No updates since {task.updated_at.strftime('%b %d')}",
+            "reason": "Stale tasks may need attention or should be marked complete.",
+            "priority": "normal",
+        })
+
+    # Suggest creating a workflow
+    from models import Workflow
+    wf_count = db.query(Workflow).filter(Workflow.user_id == user_id).count()
+    if total_tasks > 5 and wf_count == 0:
+        suggestions.append({
+            "type": "suggest_workflow",
+            "title": "Automate with workflows",
+            "description": "You have tasks that could be automated",
+            "reason": "Workflows can save time by automating repetitive tasks.",
+            "priority": "low",
         })
 
     return suggestions

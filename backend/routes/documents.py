@@ -14,12 +14,14 @@ from models import (
     Document, DocumentChunk, DocumentQA, DocumentTag, DocumentShare,
     Folder, Tag, User
 )
+from services.autotag import auto_tag_document
 from schemas import (
     DocumentResponse, DocumentMoveRequest, DocumentQARequest,
     DocumentQAResponse, DocumentSummarizeResponse,
     FolderCreate, FolderResponse, TagCreate, TagResponse, TagAssignRequest
 )
 from auth import get_current_user, get_db
+from services.embeddings import get_index, rebuild_index
 
 router = APIRouter(tags=["documents"])
 
@@ -92,6 +94,28 @@ def _simple_search_score(query: str, text: str) -> float:
     text_lower = text.lower()
     matches = sum(1 for w in query_words if w in text_lower)
     return matches / max(len(query_words), 1)
+
+
+def _tfidf_search(query: str, chunks: list, top_k: int = 5) -> list:
+    """Search chunks using TF-IDF index with fallback to keyword search."""
+    index = get_index()
+    chunk_map = {c.id: c for c in chunks}
+
+    # Try TF-IDF search first
+    if index.docs:
+        results = index.search(query, top_k=top_k)
+        scored = [(score, chunk_map[cid]) for cid, score in results if cid in chunk_map and score > 0]
+        if scored:
+            return scored
+
+    # Fallback to keyword search
+    scored = []
+    for chunk in chunks:
+        score = _simple_search_score(query, chunk.content)
+        if score > 0:
+            scored.append((score, chunk))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored[:top_k]
 
 
 # ── Document Routes ────────────────────────────────────
@@ -173,15 +197,36 @@ async def upload_document(
     db.commit()
     db.refresh(doc)
 
-    # Create chunks for RAG
+    # Create chunks for RAG + add to search index
+    index = get_index()
     if text and not text.startswith("["):
         chunks = _chunk_text(text)
         for i, chunk in enumerate(chunks):
-            db.add(DocumentChunk(
+            new_chunk = DocumentChunk(
                 document_id=doc.id, chunk_index=i, content=chunk,
                 page_number=None,
-            ))
+            )
+            db.add(new_chunk)
+            db.flush()  # get the chunk id
+            index.add(new_chunk.id, chunk)
         db.commit()
+
+    # Auto-tag document (background — don't block response)
+    existing_tag_names = [t.name for t in db.query(Tag).filter(Tag.user_id == user.id).all()]
+    try:
+        import asyncio
+        loop = asyncio.get_event_loop()
+        suggested = loop.run_until_complete(auto_tag_document(text[:3000], existing_tag_names))
+        for tag_name in suggested[:5]:
+            tag = db.query(Tag).filter(Tag.name == tag_name, Tag.user_id == user.id).first()
+            if not tag:
+                tag = Tag(name=tag_name, color="#6d5cff", user_id=user.id)
+                db.add(tag)
+                db.flush()
+            db.add(DocumentTag(document_id=doc.id, tag_id=tag.id))
+        db.commit()
+    except Exception:
+        pass  # auto-tagging is best-effort
 
     return DocumentResponse(
         id=doc.id, user_id=doc.user_id, title=doc.title, filename=doc.filename,
@@ -218,6 +263,12 @@ def delete_document(
     doc = db.query(Document).filter(Document.id == doc_id, Document.user_id == user.id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
+
+    # Remove chunks from search index
+    index = get_index()
+    chunks = db.query(DocumentChunk).filter(DocumentChunk.document_id == doc_id).all()
+    for chunk in chunks:
+        index.remove(chunk.id)
 
     # Delete file from disk
     file_path = os.path.join(UPLOAD_DIR, str(user.id), doc.filename)
@@ -306,15 +357,9 @@ def document_qa(
     if not chunks:
         return DocumentQAResponse(answer="No document content found to answer from.", sources=[])
 
-    # Simple keyword-based search (no vector DB needed)
-    scored = []
-    for chunk in chunks:
-        score = _simple_search_score(req.question, chunk.content)
-        if score > 0:
-            scored.append((score, chunk))
-    scored.sort(key=lambda x: x[0], reverse=True)
-
-    top_chunks = scored[:5] if scored else [(0.1, chunks[0])]
+    # TF-IDF semantic search with keyword fallback
+    scored = _tfidf_search(req.question, chunks, top_k=5)
+    top_chunks = scored if scored else [(0.1, chunks[0])]
 
     # Build context
     context = "\n\n".join([c.content[:500] for _, c in top_chunks])
