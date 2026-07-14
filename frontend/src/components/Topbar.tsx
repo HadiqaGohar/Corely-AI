@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { auth } from "@/lib/api";
 import {
   type Notification,
   getNotifications,
@@ -34,12 +35,15 @@ function timeAgo(date: string): string {
 
 export default function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUser, setShowUser] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [recentNotifs, setRecentNotifs] = useState<Notification[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
 
   const title = pageTitles[pathname] || "Corely AI";
 
@@ -59,6 +63,18 @@ export default function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       clearInterval(interval);
     };
   }, [refreshNotifs]);
+
+  // Load real user data
+  useEffect(() => {
+    const userData = localStorage.getItem("corely_user");
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        setUserName(parsed.name || "");
+        setUserEmail(parsed.email || "");
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -202,15 +218,17 @@ export default function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
             onClick={() => setShowUser(!showUser)}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#6d5cff] to-[#38bdf8] text-xs font-bold text-white"
           >
-            H
+            <span className="text-lg font-bold text-white">
+              {userName ? userName.charAt(0).toUpperCase() : "U"}
+            </span>
           </button>
 
           {showUser && (
             <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-[var(--border)] bg-white shadow-xl">
               <div className="border-b border-[var(--border)] px-4 py-3">
-                <p className="text-sm font-semibold">Hadiqa</p>
+                <p className="text-sm font-semibold">{userName || "User"}</p>
                 <p className="text-xs text-[var(--text-dim)]">
-                  hadiqa@corely.ai
+                  {userEmail || "user@example.com"}
                 </p>
               </div>
               <div className="py-1">
@@ -221,6 +239,16 @@ export default function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                 >
                   Settings
                 </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("corely_token");
+                    localStorage.removeItem("corely_user");
+                    router.push("/login");
+                  }}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50"
+                >
+                  Logout
+                </button>
               </div>
             </div>
           )}
