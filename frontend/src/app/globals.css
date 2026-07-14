@@ -13,6 +13,28 @@
     --accent2: #38bdf8;
   }
 
+  .dark {
+    --bg: #0f0f1a;
+    --bg-card: #1a1a2e;
+    --bg-card-hover: #252540;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.14);
+    --text: #e5e7eb;
+    --text-dim: #9ca3af;
+    --accent: #8b7cff;
+    --accent2: #5cc8f8;
+  }
+
+  .dark body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .dark .glass {
+    background: var(--bg-card);
+    border-color: var(--border);
+  }
+
   * {
     margin: 0;
     padding: 0;

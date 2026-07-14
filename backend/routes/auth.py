@@ -115,3 +115,32 @@ def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     db.delete(record)
     db.commit()
     return {"message": "Password reset successfully"}
+
+
+@router.put("/me")
+def update_profile(
+    name: str = None,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if name:
+        user.name = name
+    db.commit()
+    db.refresh(user)
+    return UserResponse(id=user.id, name=user.name, email=user.email)
+
+
+@router.post("/change-password")
+def change_password(
+    current_password: str,
+    new_password: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not verify_password(current_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    user.hashed_password = hash_password(new_password)
+    db.commit()
+    return {"message": "Password changed successfully"}

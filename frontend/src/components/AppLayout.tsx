@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import GlobalSearch from "./GlobalSearch";
+import { useKeyboardShortcuts } from "@/lib/shortcuts";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useKeyboardShortcuts();
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
+      <GlobalSearch />
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

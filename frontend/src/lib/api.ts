@@ -51,6 +51,18 @@ export const auth = {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
     }),
+  getMe: () =>
+    request<{ id: number; name: string; email: string }>("/api/auth/me"),
+  updateProfile: (data: { name?: string }) =>
+    request<{ id: number; name: string; email: string }>("/api/auth/me", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  changePassword: (current_password: string, new_password: string) =>
+    request<{ message: string }>("/api/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ current_password, new_password }),
+    }),
 };
 
 // ─── Chat ────────────────────────────────────────

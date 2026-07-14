@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
-import { notifications as notifsApi, NotificationPreference } from "@/lib/api";
+import { notifications as notifsApi, NotificationPreference, auth } from "@/lib/api";
+import { useTheme } from "@/lib/theme";
 
 export default function SettingsPage() {
   const [prefs, setPrefs] = useState<NotificationPreference[]>([]);
@@ -11,6 +12,7 @@ export default function SettingsPage() {
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [saving, setSaving] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => { loadPrefs(); loadUser(); }, []);
 
@@ -61,8 +63,21 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold mb-8">Settings</h1>
 
         <div className="glass rounded-2xl p-6 mb-6">
+          <h2 className="text-sm font-semibold mb-4">Appearance</h2>
+          <div className="space-y-3">
+            {[{ value: "light", label: "Light", icon: "☀️" }, { value: "dark", label: "Dark", icon: "🌙" }, { value: "system", label: "System", icon: "💻" }].map((opt) => (
+              <button key={opt.value} onClick={() => setTheme(opt.value as any)} className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm transition ${theme === opt.value ? "border-[var(--accent)] bg-[var(--accent)]/5" : "border-[var(--border)] hover:bg-[var(--bg-card-hover)]"}`}>
+                <span className="text-lg">{opt.icon}</span>
+                <span className="font-medium">{opt.label}</span>
+                {theme === opt.value && <span className="ml-auto text-[var(--accent)]">✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl p-6 mb-6">
           <h2 className="text-sm font-semibold mb-4">Profile</h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#6d5cff] to-[#38bdf8] text-xl font-bold text-white">
               {userName ? userName.charAt(0).toUpperCase() : "U"}
             </div>
@@ -71,6 +86,18 @@ export default function SettingsPage() {
               <p className="text-sm text-[var(--text-dim)]">{userEmail || "user@example.com"}</p>
             </div>
           </div>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-[var(--text-dim)] mb-1 block">Display Name</label>
+              <input value={userName} onChange={(e) => setUserName(e.target.value)} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
+            </div>
+            <button onClick={async () => { try { await auth.updateProfile({ name: userName }); setSaved(true); setTimeout(() => setSaved(false), 2000); } catch {} }} className="btn-primary rounded-xl px-4 py-2 text-sm font-medium">Save Profile</button>
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl p-6 mb-6">
+          <h2 className="text-sm font-semibold mb-4">Change Password</h2>
+          <PasswordChangeForm />
         </div>
 
         <div className="glass rounded-2xl p-6 mb-6">
@@ -116,5 +143,51 @@ export default function SettingsPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+function PasswordChangeForm() {
+  const [current, setCurrent] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = async () => {
+    setError("");
+    setMsg("");
+    if (newPass !== confirm) { setError("Passwords don't match"); return; }
+    if (newPass.length < 6) { setError("Password must be at least 6 characters"); return; }
+    setLoading(true);
+    try {
+      await auth.changePassword(current, newPass);
+      setMsg("Password changed successfully!");
+      setCurrent(""); setNewPass(""); setConfirm("");
+    } catch (e: any) {
+      setError(e.message || "Failed to change password");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-xs text-[var(--text-dim)] mb-1 block">Current Password</label>
+        <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
+      </div>
+      <div>
+        <label className="text-xs text-[var(--text-dim)] mb-1 block">New Password</label>
+        <input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
+      </div>
+      <div>
+        <label className="text-xs text-[var(--text-dim)] mb-1 block">Confirm New Password</label>
+        <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]" />
+      </div>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      {msg && <p className="text-xs text-emerald-600">{msg}</p>}
+      <button onClick={handleChange} disabled={loading || !current || !newPass} className="btn-primary rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-50">
+        {loading ? "Changing..." : "Change Password"}
+      </button>
+    </div>
   );
 }
