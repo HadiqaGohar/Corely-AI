@@ -314,6 +314,17 @@ export const documents = {
     }),
   removeTag: (docId: number, tagId: number) =>
     request<void>(`/api/documents/${docId}/tags/${tagId}`, { method: "DELETE" }),
+
+  // Sharing
+  share: (docId: number, email: string, permission: string = "view") =>
+    request<any>(`/api/documents/${docId}/share`, {
+      method: "POST",
+      body: JSON.stringify({ shared_with_email: email, permission }),
+    }),
+  sharedWithMe: () =>
+    request<Document[]>(`/api/documents/shared-with-me`),
+  removeShare: (docId: number, shareId: number) =>
+    request<void>(`/api/documents/${docId}/shares/${shareId}`, { method: "DELETE" }),
 };
 
 // ─── Notifications ───────────────────────────────
