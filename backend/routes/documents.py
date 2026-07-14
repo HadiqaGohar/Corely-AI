@@ -1,14 +1,17 @@
-"""Document routes — Upload, list, delete, move, QA, summarize, folders, tags."""
+"""Document routes — Upload, list, delete, move, QA, summarize, folders, tags, sharing."""
 import os
 import re
+import json
+import httpx
 from datetime import datetime, timezone
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from models import (
-    Document, DocumentChunk, DocumentQA, DocumentTag,
+    Document, DocumentChunk, DocumentQA, DocumentTag, DocumentShare,
     Folder, Tag, User
 )
 from schemas import (
@@ -505,3 +508,117 @@ def remove_tag(
     ).delete()
     db.commit()
     return {"message": "Tag removed"}
+
+
+# ── Document Sharing ───────────────────────────────────
+
+class DocumentShareRequest(BaseModel):
+    email: str
+    permission: str = "view"  # view or edit
+
+
+class DocumentShareResponse(BaseModel):
+    id: int
+    document_id: int
+    shared_with_email: str
+    permission: str
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+
+@router.post("/api/documents/{doc_id}/share", response_model=DocumentShareResponse)
+def share_document(
+    doc_id: int,
+    req: DocumentShareRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Share a document with another user by email."""
+    doc = db.query(Document).filter(Document.id == doc_id, Document.user_id == user.id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    if req.permission not in ("view", "edit"):
+        raise HTTPException(status_code=400, detail="Permission must be 'view' or 'edit'")
+
+    # Check for existing share with same email
+    existing = db.query(DocumentShare).filter(
+        DocumentShare.document_id == doc_id,
+        DocumentShare.shared_with_email == req.email,
+    ).first()
+    if existing:
+        existing.permission = req.permission
+        db.commit()
+        db.refresh(existing)
+        return DocumentShareResponse(
+            id=existing.id,
+            document_id=existing.document_id,
+            shared_with_email=existing.shared_with_email,
+            permission=existing.permission,
+            created_at=existing.created_at,
+        )
+
+    share = DocumentShare(
+        document_id=doc_id,
+        shared_by_user_id=user.id,
+        shared_with_email=req.email,
+        permission=req.permission,
+    )
+    db.add(share)
+    db.commit()
+    db.refresh(share)
+    return DocumentShareResponse(
+        id=share.id,
+        document_id=share.document_id,
+        shared_with_email=share.shared_with_email,
+        permission=share.permission,
+        created_at=share.created_at,
+    )
+
+
+@router.get("/api/documents/shared-with-me", response_model=list[DocumentResponse])
+def shared_with_me(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List documents that other users have shared with the current user."""
+    shares = db.query(DocumentShare).filter(
+        DocumentShare.shared_with_email == user.email,
+    ).all()
+
+    result = []
+    for share in shares:
+        doc = db.query(Document).filter(Document.id == share.document_id).first()
+        if doc:
+            tags = [{"id": t.id, "name": t.name, "color": t.color} for t in doc.tags]
+            result.append(DocumentResponse(
+                id=doc.id, user_id=doc.user_id, title=doc.title, filename=doc.filename,
+                file_type=doc.file_type, file_size=doc.file_size, status=doc.status,
+                folder_id=doc.folder_id, tags=tags,
+                created_at=doc.created_at, updated_at=doc.updated_at,
+            ))
+    return result
+
+
+@router.delete("/api/documents/{doc_id}/shares/{share_id}")
+def remove_share(
+    doc_id: int,
+    share_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Remove a document share."""
+    doc = db.query(Document).filter(Document.id == doc_id, Document.user_id == user.id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    share = db.query(DocumentShare).filter(
+        DocumentShare.id == share_id,
+        DocumentShare.document_id == doc_id,
+    ).first()
+    if not share:
+        raise HTTPException(status_code=404, detail="Share not found")
+
+    db.delete(share)
+    db.commit()
+    return {"message": "Share removed"}

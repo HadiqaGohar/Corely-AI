@@ -3,14 +3,34 @@ Corely AI — FastAPI Backend
 Main application with all routes.
 """
 import os
-import secrets
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from models import init_db
+from models import init_db, SessionLocal
+from services.reminders import check_reminders, check_overdue_tasks
+
+
+# ── Background Task Runner ────────────────────────────
+async def _reminder_loop():
+    """Run reminder and overdue checks every 60 seconds."""
+    while True:
+        try:
+            db = SessionLocal()
+            try:
+                reminders = check_reminders(db)
+                overdue = check_overdue_tasks(db)
+                if reminders or overdue:
+                    print(f"🔔 Reminders: {reminders} notifications, Overdue: {overdue} notifications")
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"⚠️ Reminder check error: {e}")
+        await asyncio.sleep(60)
+
 
 # ── Lifespan ───────────────────────────────────────────
 @asynccontextmanager
@@ -19,8 +39,19 @@ async def lifespan(app: FastAPI):
     # Startup: create tables
     init_db()
     print("✅ Database tables created")
+
+    # Start background reminder checker
+    task = asyncio.create_task(_reminder_loop())
+    print("🔄 Background reminder checker started")
+
     yield
-    # Shutdown: cleanup if needed
+
+    # Shutdown: cancel background task
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
     print("👋 Shutting down")
 
 

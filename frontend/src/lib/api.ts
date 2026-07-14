@@ -418,6 +418,42 @@ export interface Suggestion {
   created_at: string;
 }
 
+export interface DashboardStats {
+  tasks_total: number;
+  tasks_todo: number;
+  tasks_in_progress: number;
+  tasks_done: number;
+  documents_total: number;
+  chat_sessions: number;
+  chat_messages: number;
+  notifications_unread: number;
+  workflows_total: number;
+  suggestions_active: number;
+}
+
+export interface ProductivityScore {
+  score: number;
+  breakdown: Record<string, number>;
+}
+
+export interface ActivityItem {
+  type: string;
+  title: string;
+  timestamp: string;
+  detail?: string;
+}
+
+export interface DocumentQA {
+  answer: string;
+  sources: Array<{ document_id: number; document_title: string; chunk_index: number; relevance: number; preview: string }>;
+}
+
+export interface NotificationPreference {
+  notification_type: string;
+  in_app: boolean;
+  email: boolean;
+}
+
 export const suggestions = {
   list: () => request<Suggestion[]>("/api/suggestions"),
   apply: (id: number) =>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
+import { tasks as tasksApi, Task as ApiTask, Subtask as ApiSubtask } from "@/lib/api";
 
 /* ── Types ─────────────────────────────────────────────── */
 
@@ -68,19 +69,6 @@ const statusPct: Record<TaskStatus, string> = {
   done: "bg-emerald-400",
 };
 
-/* ── Mock Data ─────────────────────────────────────────── */
-
-const initTasks: Task[] = [
-  { id: 1, title: "Design new dashboard layout", description: "Create wireframes and mockups", status: "todo", priority: "high", due_date: "2026-07-15", subtasks: [{ id: 101, text: "Research competitors", done: true }, { id: 102, text: "Create wireframes", done: false }, { id: 103, text: "Stakeholder review", done: false }], recurrence: "none" },
-  { id: 2, title: "Implement user authentication", description: "JWT-based auth with refresh tokens", status: "in_progress", priority: "high", due_date: "2026-07-14", subtasks: [{ id: 104, text: "Setup JWT library", done: true }, { id: 105, text: "Build login endpoint", done: false }], recurrence: "none" },
-  { id: 3, title: "Write API documentation", description: "Swagger/OpenAPI spec", status: "todo", priority: "normal", due_date: "2026-07-18", subtasks: [], recurrence: "none" },
-  { id: 4, title: "Set up CI/CD pipeline", description: "GitHub Actions workflow", status: "todo", priority: "normal", due_date: null, subtasks: [], recurrence: "weekly" },
-  { id: 5, title: "Fix navigation bug", description: "Sidebar doesn't close on mobile", status: "in_progress", priority: "high", due_date: "2026-07-13", subtasks: [{ id: 106, text: "Reproduce issue", done: true }, { id: 107, text: "Fix and test", done: false }], recurrence: "none" },
-  { id: 6, title: "Review pull requests", description: "Review 3 open PRs", status: "done", priority: "normal", due_date: "2026-07-12", subtasks: [], recurrence: "daily" },
-  { id: 7, title: "Update dependencies", description: "npm audit fix", status: "done", priority: "low", due_date: null, subtasks: [], recurrence: "monthly" },
-  { id: 8, title: "Deploy to production", description: "Final testing and deployment", status: "todo", priority: "high", due_date: "2026-07-20", subtasks: [{ id: 108, text: "Run full test suite", done: false }, { id: 109, text: "Update changelog", done: false }], recurrence: "none" },
-];
-
 /* ── Helpers ───────────────────────────────────────────── */
 
 function isOverdue(dueDate: string | null): boolean {
@@ -93,10 +81,24 @@ function subtaskProgress(task: Task): { done: number; total: number } {
   return { done, total: task.subtasks.length };
 }
 
+function apiTaskToLocal(t: ApiTask): Task {
+  return {
+    id: t.id,
+    title: t.title,
+    description: t.description,
+    status: t.status as TaskStatus,
+    priority: t.priority as Priority,
+    due_date: t.due_date,
+    subtasks: (t.subtasks || []).map((s) => ({ id: s.id, text: s.title, done: s.completed })),
+    recurrence: (t.recurrence || "none") as Recurrence,
+  };
+}
+
 /* ── Page Component ────────────────────────────────────── */
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(initTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [filter, setFilter] = useState({ status: "", priority: "", search: "" });
   const [sort, setSort] = useState<{ field: SortField; dir: SortDir }>({ field: "date", dir: "desc" });
@@ -105,6 +107,33 @@ export default function TasksPage() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [analyticsOpen, setAnalyticsOpen] = useState(true);
   const [dragId, setDragId] = useState<number | null>(null);
+
+  // Load tasks from API
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    try {
+      setLoading(true);
+      const params: any = {};
+      if (filter.status) params.status = filter.status;
+      if (filter.priority) params.priority = filter.priority;
+      if (filter.search) params.search = filter.search;
+      const data = await tasksApi.list(params);
+      setTasks(data.map(apiTaskToLocal));
+    } catch (e) {
+      console.error("Failed to load tasks:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reload on filter change
+  useEffect(() => {
+    const timer = setTimeout(() => loadTasks(), 300);
+    return () => clearTimeout(timer);
+  }, [filter.status, filter.priority, filter.search]);
 
   /* ── Derived data ──────────────────────────────────── */
 
@@ -151,22 +180,42 @@ export default function TasksPage() {
 
   /* ── Actions ────────────────────────────────────────── */
 
-  const updateStatus = useCallback((id: number, status: TaskStatus) => {
+  const updateStatus = useCallback(async (id: number, status: TaskStatus) => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+    try { await tasksApi.update(id, { status }); } catch { loadTasks(); }
   }, []);
 
-  const deleteTask = useCallback((id: number) => {
+  const deleteTask = useCallback(async (id: number) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
     setSelected((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    try { await tasksApi.delete(id); } catch { loadTasks(); }
   }, []);
 
-  const createTask = useCallback((data: Omit<Task, "id" | "status">) => {
-    setTasks((prev) => [{ id: Date.now(), ...data, status: "todo" as const }, ...prev]);
+  const createTask = useCallback(async (data: Omit<Task, "id" | "status">) => {
+    try {
+      const created = await tasksApi.create({
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        due_date: data.due_date || undefined,
+        recurrence: data.recurrence !== "none" ? data.recurrence : undefined,
+      });
+      setTasks((prev) => [apiTaskToLocal(created), ...prev]);
+    } catch { loadTasks(); }
     setShowCreate(false);
   }, []);
 
-  const updateTask = useCallback((id: number, data: Partial<Task>) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...data } : t)));
+  const updateTask = useCallback(async (id: number, data: Partial<Task>) => {
+    try {
+      const updated = await tasksApi.update(id, {
+        title: data.title,
+        description: data.description,
+        status: data.status,
+        priority: data.priority,
+        due_date: data.due_date || undefined,
+      });
+      setTasks((prev) => prev.map((t) => (t.id === id ? apiTaskToLocal(updated) : t)));
+    } catch { loadTasks(); }
     setDetailTask(null);
   }, []);
 
@@ -186,17 +235,21 @@ export default function TasksPage() {
     }
   }, [selected.size, filtered]);
 
-  const bulkDelete = useCallback(() => {
+  const bulkDelete = useCallback(async () => {
     if (selected.size === 0) return;
     if (!confirm(`Delete ${selected.size} task(s)?`)) return;
+    const ids = Array.from(selected);
     setTasks((prev) => prev.filter((t) => !selected.has(t.id)));
     setSelected(new Set());
+    for (const id of ids) { try { await tasksApi.delete(id); } catch {} }
   }, [selected]);
 
-  const bulkStatus = useCallback((status: TaskStatus) => {
+  const bulkStatus = useCallback(async (status: TaskStatus) => {
     if (selected.size === 0) return;
+    const ids = Array.from(selected);
     setTasks((prev) => prev.map((t) => (selected.has(t.id) ? { ...t, status } : t)));
     setSelected(new Set());
+    for (const id of ids) { try { await tasksApi.update(id, { status }); } catch {} }
   }, [selected]);
 
   /* ── Drag & Drop ────────────────────────────────────── */
